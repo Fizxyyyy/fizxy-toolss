@@ -35,7 +35,8 @@ try:
             
         print("\033[92m[V] Akses Diterima! Menjalankan Roblox Manager...\033[0m")
         # Jalanin script bash lu dengan Link PS sebagai input ($1)
-        os.system(f"tsu sh run.sh '{PS_LINK}'")
+                # Cara panggil tsu yang bener buat jalanin script
+        os.system(f"tsu -c 'sh run.sh {PS_LINK}'") 
     else:
         print("\033[91m[X] Akses Ditolak! Key salah atau limit device penuh.\033[0m")
 except Exception as e:
