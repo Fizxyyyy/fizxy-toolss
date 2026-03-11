@@ -12,9 +12,9 @@ read -p "Masukkan License Key: " KEY
 read -p "Masukkan Link Private Server: " PS
 read -p "Masukkan Discord Webhook (optional): " WEBHOOK
 
-echo "KEY=\"$KEY\"" > $CONFIG
-echo "PS=\"$PS\"" >> $CONFIG
-echo "WEBHOOK=\"$WEBHOOK\"" >> $CONFIG
+echo "KEY=\"$KEY\"" > "$CONFIG"
+echo "PS=\"$PS\"" >> "$CONFIG"
+echo "WEBHOOK=\"$WEBHOOK\"" >> "$CONFIG"
 fi
 
 HWID=$(cat /proc/sys/kernel/random/uuid)
@@ -35,9 +35,12 @@ fi
 
 echo "[*] Mengambil script terbaru..."
 
-echo "$SCRIPT" > script_roblox.sh
-chmod +x script_roblox.sh
+SCRIPT_PATH="$HOME/script_roblox.sh"
+
+echo "$SCRIPT" > "$SCRIPT_PATH"
+chmod +x "$SCRIPT_PATH"
 
 echo "[✓] Script terbaru siap"
 
-su -c "sh script_roblox.sh \"$PS\" \"$WEBHOOK\""
+# jalankan pakai path full
+su -c "sh $SCRIPT_PATH \"$PS\" \"$WEBHOOK\""
