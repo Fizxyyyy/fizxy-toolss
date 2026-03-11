@@ -34,9 +34,16 @@ try:
             f.write(script_content)
             
         print("\033[92m[V] Akses Diterima! Menjalankan Roblox Manager...\033[0m")
-        # Jalanin script bash lu dengan Link PS sebagai input ($1)
-        os.system("chmod +x run.sh")
-        os.system(f"tsu ./run.sh '{PS_LINK}'")
+                # Ambil alamat lengkap (Path) folder home Termux
+        home_path = "/data/data/com.termux/files/home/"
+        
+        # Kasih izin eksekusi ke file
+        os.system(f"chmod +x {home_path}run.sh")
+        
+        print("\033[92m[V] Akses Diterima! Menjalankan Roblox Manager...\033[0m")
+        
+        # Pakai cara sakti yang biasa lu pake (su -c) dengan Full Path
+        os.system(f"su -c 'sh {home_path}run.sh \"{PS_LINK}\"'")       
         
     else:
         print("\033[91m[X] Akses Ditolak! Key salah atau limit device penuh.\033[0m")
