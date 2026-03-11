@@ -2,7 +2,7 @@ import os, requests, subprocess, sys
 
 # 1. Install bahan otomatis
 print("\033[93m[*] Menyiapkan Bahan (tsu & requests)...\033[0m")
-os.system("pkg update -y && pkg install tsu requests -y")
+os.system("pkg update -y && pkg install tsu -y && pip install requests")
 
 print("\n\033[92m--- FIZXY TOOLS AUTO INSTALLER ---\033[0m")
 KEY = input("Masukkan License Key: ")
@@ -11,9 +11,11 @@ PS_LINK = input("Masukkan Link Private Server Lu: ")
 # 2. Ambil ID Cloud (HWID)
 def get_hwid():
     try:
-        return subprocess.check_output('settings get secure android_id', shell=True).decode().strip()
+        # Pake cara ini lebih aman buat Termux (Gak butuh izin secure settings)
+        import uuid
+        return str(uuid.getnode())
     except:
-        return "UNKNOWN"
+        return "UNKNOWN_DEVICE"
 
 HWID = get_hwid()
 # Alamat panel lu (Sesuai screenshot n3:2400)
