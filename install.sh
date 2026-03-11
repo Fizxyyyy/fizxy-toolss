@@ -16,10 +16,10 @@ RESPONSE=$(curl -s -X POST $URL \
 -H "Content-Type: application/json" \
 -d "{\"key\":\"$KEY\",\"hwid\":\"$HWID\"}")
 
-SCRIPT=$(echo $RESPONSE | sed 's/.*"script":"\(.*\)".*/\1/' | sed 's/\\n/\n/g')
+SCRIPT=$(echo "$RESPONSE" | grep -o '"script":"[^"]*"' | cut -d '"' -f4 | sed 's/\\n/\n/g')
 
 if [ -z "$SCRIPT" ]; then
-echo "[X] Key tidak valid atau panel mati"
+echo "[X] Key tidak valid atau server error"
 exit
 fi
 
