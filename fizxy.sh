@@ -4,6 +4,18 @@
 # Auto Kill proses pas exit
 trap "pkill -f com.roblox.client; exit" SIGINT SIGTERM
 
+# --- REMOTE KILL SWITCH ---
+STATUS_URL="https://raw.githubusercontent.com/Fizxyyyy/fizxy-toolss/main/status.txt"
+CHECK_STATUS=$(curl -s "$STATUS_URL")
+
+if [ "$CHECK_STATUS" = "OFF" ]; then
+    echo -e "\033[91m==========================================\033[0m"
+    echo -e "\033[91m      MAAF: MASA TRIAL SUDAH HABIS      \033[0m"
+    echo -e "\033[91m==========================================\033[0m"
+    echo -e "\033[93mHubungi Fizxy untuk membeli lisensi resmi.\033[0m"
+    exit 1
+fi
+
 URL_API="http://n3.panelbot.id:2400/verify"
 CONFIG_FILE="$HOME/.fizxy_config"
 
