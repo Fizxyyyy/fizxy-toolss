@@ -1,47 +1,120 @@
 #!/bin/bash
-set +o history
-set +x
+# Loader Fizxy Tools v7 - Premium Aesthetic UI
 
+# --- SECURITY LAYER ---
+set +x
+set +o history
+umask 077
+
+BAD_APPS="com.guoshi.httpcanary app.greyshirts.sslcapture com.pcapdroid.android"
+
+for APP in $BAD_APPS; do
+    if pm list packages | grep -q "$APP"; then
+        echo "Security violation detected"
+        exit 1
+    fi
+done
+
+# Auto Kill proses pas exit
 trap "pkill -f com.roblox.client; exit" SIGINT SIGTERM
 
 # --- REMOTE KILL SWITCH ---
 STATUS_URL="https://raw.githubusercontent.com/Fizxyyyy/fizxy-toolss/main/status.txt"
-CHECK_STATUS=$(curl -sL "$STATUS_URL" | tr -d '[:space:]')
+CHECK_STATUS=$(curl -fsL --connect-timeout 5 "$STATUS_URL")
 
 if [ "$CHECK_STATUS" = "OFF" ]; then
+    echo -e "\033[91m==========================================\033[0m"
     echo -e "\033[91m      MAAF: MASA TRIAL SUDAH HABIS      \033[0m"
+    echo -e "\033[91m==========================================\033[0m"
+    echo -e "\033[93mHubungi Fizxy untuk membeli lisensi resmi.\033[0m"
     exit 1
 fi
 
 URL_API="http://n3.panelbot.id:2400/verify"
 CONFIG_FILE="$HOME/.fizxy_config"
 
-# Load Config
+# Warna
+GREY='\033[90m'
+BOLD='\033[1m'
+GREEN='\033[92m'
+BLUE='\033[94m'
+YELLOW='\033[93m'
+RED='\033[91m'
+NC='\033[0m'
+
+clear
+
+echo -e "${GREY}${BOLD}"
+echo "  ███████╗██╗███████╗██╗  ██╗██╗   ██╗"
+echo "  ██╔════╝██║╚══███╔╝╚██╗██╔╝╚██╗ ██╔╝"
+echo "  █████╗  ██║  ███╔╝  ╚███╔╝  ╚████╔╝ "
+echo "  ██╔══╝  ██║ ███╔╝   ██╔██╗   ╚██╔╝  "
+echo "  ██║     ██║███████╗██╔╝ ██╗   ██║   "
+echo "  ╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   "
+echo -e "${NC}"
+echo -e "${BOLD}         TOOLS PREMIUM          ${NC}"
+echo -e "${GREY}------------------------------------------${NC}"
+
+# Fungsi Load Config
 if [ -f "$CONFIG_FILE" ]; then
     source "$CONFIG_FILE"
-    echo -e "\033[93m[!] Data lama ditemukan.\033[0m"
-    echo -n "📁 Pakai data lama? (y/n): "
+    echo -e "${YELLOW}[!] Data lama ditemukan.${NC}"
+    echo -e " 🔑 Key: ${GREY}$KEY${NC}"
+    echo ""
+    echo -n "📁 Pakai data yang sebelumnya? (y/n): "
     read REUSE
-    if [[ "$REUSE" != "y" ]]; then rm "$CONFIG_FILE"; unset KEY PS WH; fi
+    if [[ "$REUSE" != "y" ]]; then
+        rm -f "$CONFIG_FILE"
+    fi
 fi
 
+# Input Data jika file config tidak ada
 if [ ! -f "$CONFIG_FILE" ]; then
-    echo -e "\033[1mMasukan Key:\033[0m"; echo -n " > "; read KEY
-    echo -e "\033[1mMasukan Link PS Mu:\033[0m"; echo -n " > "; read PS
-    echo -e "\033[1mMasukan URL Webhook (Opsional):\033[0m"; echo -n " > "; read WH
-    echo "KEY='$KEY'"; echo "PS='$PS'"; echo "WH='$WH'" > "$CONFIG_FILE"
+    echo -e "${BOLD}Masukan Key:${NC}"
+    echo -n " > "
+    read KEY
+    
+    echo -e "${BOLD}Masukan Link PS Mu:${NC}"
+    echo -n " > "
+    read PS
+    
+    echo -e "${BOLD}Masukan URL Webhook (Opsional boleh di pakai boleh engga) :${NC}"
+    echo -n " > "
+    read WH
+    
+    echo "KEY='$KEY'" > "$CONFIG_FILE"
+    echo "PS='$PS'" >> "$CONFIG_FILE"
+    echo "WH='$WH'" >> "$CONFIG_FILE"
+    
+    chmod 600 "$CONFIG_FILE"
 fi
 
+# AMBIL HWID
 HWID=$(getprop ro.serialno)
-echo -e "\033[94m[*] Mengautentikasi dengan Server...\033[0m"
 
-RAW_DATA=$(curl -sL -X POST -d "key=$KEY&hwid=$HWID" "$URL_API")
+echo ""
+echo -e "${BLUE}[*] Menghubungkan ke Server...${NC}"
 
-if [[ "$RAW_DATA" == "INVALID" || -z "$RAW_DATA" ]]; then
-    echo -e "\033[91m[X] ERROR: Key Salah atau Server Down!\033[0m"
+# KIRIM KE PANEL
+RESPONSE=$(curl -fsL --connect-timeout 8 -X POST -d "key=$KEY&hwid=$HWID" "$URL_API")
+
+if [[ "$RESPONSE" == "INVALID" ]]; then
+    echo -e "${RED}[X] ERROR: Key Salah!${NC}"
+    rm -f "$CONFIG_FILE"
     exit 1
+
+elif [[ "$RESPONSE" == "LIMIT" ]]; then
+    echo -e "${RED}[X] ERROR: Slot Device Penuh!${NC}"
+    exit 1
+
+elif [[ -z "$RESPONSE" ]]; then
+    echo -e "${RED}[X] ERROR: Server tidak merespon${NC}"
+    exit 1
+
 else
-    echo -e "\033[92m[V] LISENSI VALID! Memuat Fitur...\033[0m"
-    # SOLUSI
-    eval "$(echo "$RAW_DATA")" "$PS" "$WH"
+    echo -e "${GREEN}[V] BERHASIL: Lisensi Aktif!${NC}"
+    echo -e "${GREY}[*] Menjalankan Manager... (CTRL+C untuk berhenti)${NC}"
+    sleep 2
+
+    echo "$RESPONSE" | bash -s -- "$PS" "$WH"
 fi
